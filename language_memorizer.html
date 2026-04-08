@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinguaMatch — Language Memorizer</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+SC&family=Noto+Sans+JP&family=Noto+Sans+Thai&family=Zhi+Mang+Xing&family=LXGW+WenKai&family=Yuji+Syuku&family=Mali&family=Caveat&display=swap');
+
+    :root {
+      --bg: #0f0f13;
+      --surface: #18181f;
+      --surface2: #22222e;
+      --surface3: #2c2c3a;
+      --border: rgba(255, 255, 255, 0.08);
+      --border2: rgba(255, 255, 255, 0.14);
+      --text: #f0eff8;
+      --text2: #9a99b0;
+      --text3: #5e5d72;
+      --accent: #7c6fff;
+      --accent2: #9d8fff;
+      --green: #3ecf8e;
+      --red: #f05c5c;
+      --amber: #f5a623;
+      --teal: #2dd4bf;
+      --pink: #f472b6;
+      --radius: 14px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', 'Noto Sans SC', 'Noto Sans JP', 'Noto Sans Thai', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 24px;
+      height: 60px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--accent2);
+      letter-spacing: -0.5px;
+      margin-right: 32px;
+      white-space: nowrap;
+    }
+
+    .nav-logo span {
+      color: var(--text);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .nav-tab {
+      padding: 7px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.18s;
+    }
+
+    .nav-tab:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .nav-tab.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .nav-count {
+      font-size: 13px;
+      color: var(--text3);
+      padding: 4px 12px;
+      background: var(--surface2);
+      border-radius: 20px;
+    }
+
+    /* PAGES */
+    .page {
+      display: none;
+      padding: 28px 28px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    /* ─── WORD LIST PAGE ─── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    .page-title span {
+      color: var(--accent2);
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text);
+      transition: all 0.18s;
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background: var(--surface3);
+      border-color: var(--border2);
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn.primary:hover {
+      background: var(--accent2);
+    }
+
+    .btn.danger {
+      background: transparent;
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .btn.danger:hover {
+      background: rgba(240, 92, 92, 0.12);
+    }
+
+    .btn.success {
+      background: var(--green);
+      border-color: var(--green);
+      color: #0f1f17;
+    }
+
+    /* ADD ROW FORM */
+    .add-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .add-form-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text2);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .add-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 12px;
+      color: var(--text3);
+      font-weight: 500;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    input[type=text],
+    textarea,
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 9px 12px;
+      transition: border 0.18s;
+      outline: none;
+      width: 100%;
+    }
+
+    input[type=text]:focus,
+    textarea:focus {
+      border-color: var(--accent);
+    }
+
+    input[type=text]::placeholder {
+      color: var(--text3);
+    }
+
+    /* CSV import */
+    .csv-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .csv-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .csv-hint {
+      font-size: 12px;
+      color: var(--text3);
+      margin-bottom: 10px;
+    }
+
+    .csv-hint code {
+      background: var(--surface3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: var(--teal);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .csv-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .csv-file-btn {
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    /* WORD TABLE */
+    .word-table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text3);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 10px 14px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: var(--surface2);
+    }
+
+    body.writing-font .word-cell,
+    body.writing-font .main-word,
+    body.writing-font .wsr-word {
+      font-family: 'LXGW WenKai', 'KaiTi', 'STKaiti', 'Kaiti SC', 'BiauKai', 'Zhi Mang Xing', 'Yuji Syuku', 'Mali', 'Caveat', cursive !important;
+      font-weight: 400 !important;
+    }
+
+    body.writing-font .word-cell {
+      font-size: 26px !important;
+      line-height: 1.3;
+    }
+
+    body.writing-font .main-word {
+      font-size: 64px !important;
+      line-height: 1.1;
+    }
+
+    body.writing-font .wsr-word {
+      font-size: 24px !important;
+    }
+
+    .lang-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    .lang-zh {
+      background: rgba(125, 99, 255, 0.18);
+      color: #a78bfa;
+    }
+
+    .lang-ja {
+      background: rgba(244, 114, 182, 0.18);
+      color: #f472b6;
+    }
+
+    .lang-th {
+      background: rgba(45, 212, 191, 0.18);
+      color: #2dd4bf;
+    }
+
+    .lang-en {
+      background: rgba(245, 166, 35, 0.18);
+      color: #f5a623;
+    }
+
+    .edit-inline input {
+      padding: 5px 8px;
+      font-size: 13px;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-icon {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--text3);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px 8px;
+      transition: all 0.15s;
+    }
+
+    .btn-icon:hover {
+      background: var(--surface3);
+      color: var(--text);
+      border-color: var(--border);
+    }
+
+    .btn-icon.del:hover {
+      color: var(--red);
+      border-color: rgba(240, 92, 92, 0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text3);
+    }
+
+    .empty-state .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 15px;
+    }
+
+    /* ─── GAME PAGE ─── */
+    .game-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      padding-top: 10px;
+    }
+
+    .game-hud {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hud-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 24px;
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .hud-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text3);
+      margin-bottom: 4px;
+    }
+
+    .hud-val {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .hud-val.streak {
+      color: var(--amber);
+    }
+
+    .hud-val.score {
+      color: var(--green);
+    }
+
+    .word-display {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 20px;
+      padding: 36px 56px;
+      text-align: center;
+      position: relative;
+      min-width: 280px;
+    }
+
+    .word-display .lang-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text3);
+      margin-bottom: 10px;
+    }
+
+    .word-display .main-word {
+      font-size: 52px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .word-display .word-sub {
+      font-size: 14px;
+      color: var(--text3);
+      margin-top: 8px;
+    }
+
+    .cards-section {
+      width: 100%;
+      max-width: 780px;
+    }
+
+    .cards-section-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text3);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .match-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s;
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: var(--text);
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .match-card:hover {
+      border-color: var(--accent);
+      background: var(--surface2);
+      transform: translateY(-1px);
+    }
+
+    .match-card.selected {
+      border-color: var(--accent);
+      background: rgba(124, 111, 255, 0.15);
+    }
+
+    .match-card.correct {
+      border-color: var(--green) !important;
+      background: rgba(62, 207, 142, 0.15) !important;
+      color: var(--green);
+      animation: pop 0.3s ease;
+    }
+
+    .match-card.wrong {
+      border-color: var(--red) !important;
+      background: rgba(240, 92, 92, 0.12) !important;
+      color: var(--red);
+      animation: shake 0.3s ease;
+    }
+
+    .match-card.locked {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.06)
+      }
+
+      100% {
+        transform: scale(1)
+      }
+    }
+
+    @keyframes shake {
+      0% {
+        transform: translateX(0)
+      }
+
+      25% {
+        transform: translateX(-6px)
+      }
+
+      75% {
+        transform: translateX(6px)
+      }
+
+      100% {
+        transform: translateX(0)
+      }
+    }
+
+    .card-type-badge {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text3);
+    }
+
+    .game-status-bar {
+      width: 100%;
+      max-width: 780px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      text-align: center;
+      font-size: 15px;
+      color: var(--text2);
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status-correct {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .status-wrong {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .game-empty {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text3);
+    }
+
+    .game-empty .big {
+      font-size: 56px;
+      margin-bottom: 16px;
+    }
+
+    .game-empty p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    /* Progress bar */
+    .progress-bar-wrap {
+      width: 100%;
+      max-width: 780px;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--text3);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-bar {
+      height: 5px;
+      background: var(--surface2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--teal));
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+
+    /* ─── STATS PAGE ─── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+    }
+
+    .stat-card .s-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+
+    .stat-card .s-val {
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .stat-card .s-val.green {
+      color: var(--green);
+    }
+
+    .stat-card .s-val.red {
+      color: var(--red);
+    }
+
+    .stat-card .s-val.amber {
+      color: var(--amber);
+    }
+
+    .stat-card .s-val.purple {
+      color: var(--accent2);
+    }
+
+    .stats-section {
+      margin-bottom: 28px;
+    }
+
+    .stats-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--text2);
+    }
+
+    .word-stat-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+    }
+
+    .wsr-word {
+      font-size: 18px;
+      font-weight: 600;
+      min-width: 80px;
+    }
+
+    .wsr-meta {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    .wsr-bars {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mini-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 120px;
+    }
+
+    .mini-bar-label {
+      font-size: 11px;
+      color: var(--text3);
+    }
+
+    .mini-bar {
+      height: 6px;
+      background: var(--surface2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .mini-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+    }
+
+    .mini-bar-fill.g {
+      background: var(--green);
+    }
+
+    .mini-bar-fill.r {
+      background: var(--red);
+    }
+
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .rank-1 {
+      background: rgba(245, 166, 35, 0.2);
+      color: var(--amber);
+    }
+
+    .rank-2 {
+      background: rgba(240, 92, 92, 0.18);
+      color: var(--red);
+    }
+
+    .rank-3 {
+      background: rgba(155, 155, 180, 0.2);
+      color: var(--text2);
+    }
+
+    .rank-n {
+      background: var(--surface2);
+      color: var(--text3);
+    }
+
+    .no-data {
+      color: var(--text3);
+      font-size: 14px;
+      text-align: center;
+      padding: 30px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 12px 22px;
+      font-size: 14px;
+      color: var(--text);
+      opacity: 0;
+      transition: all 0.25s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--surface3);
+      border-radius: 4px;
+    }
+
+    /* Responsive */
+    @media(max-width: 700px) {
+      .add-form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .word-display .main-word {
+        font-size: 38px;
+      }
+
+      nav {
+        padding: 0 12px;
+      }
+
+      .page {
+        padding: 16px;
+      }
+    }
+
+    /* Session complete overlay */
+    .session-complete {
+      text-align: center;
+      padding: 60px 20px;
+      display: none;
+    }
+
+    .session-complete.show {
+      display: block;
+    }
+
+    .session-complete .big-num {
+      font-size: 72px;
+      font-weight: 700;
+      color: var(--green);
+      line-height: 1;
+    }
+
+    .session-complete h2 {
+      font-size: 22px;
+      margin: 12px 0 6px;
+    }
+
+    .session-complete p {
+      color: var(--text2);
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="nav-logo">Lingua<span>Match</span></div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('words')">📚 Word List</button>
+      <button class="nav-tab" onclick="showPage('game')">🎮 Match Game</button>
+      <button class="nav-tab" onclick="showPage('stats')">📊 Stats</button>
+    </div>
+    <div class="nav-count" id="wordCount">0 words</div>
+  </nav>
+
+  <!-- ═══════════════ WORD LIST PAGE ═══════════════ -->
+  <div class="page active" id="page-words">
+
+    <!-- Add word form -->
+    <div class="add-form">
+      <div class="add-form-title">Add a New Word</div>
+      <div class="add-form-grid">
+        <div class="field-group">
+          <div class="field-label">Word</div>
+          <input type="text" id="inp-word" placeholder="e.g. 猫 / 猫 / แมว">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Language</div>
+          <select id="inp-lang">
+            <option value="zh">🇨🇳 Mandarin</option>
+            <option value="ja">🇯🇵 Japanese</option>
+            <option value="th">🇹🇭 Thai</option>
+            <option value="en">🇬🇧 English</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Meaning (EN/TH)</div>
+          <input type="text" id="inp-meaning" placeholder="e.g. cat / แมว">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Pronunciation</div>
+          <input type="text" id="inp-pronun" placeholder="e.g. māo / neko">
+        </div>
+        <button class="btn primary" onclick="addWord()" style="height:38px;white-space:nowrap">+ Add</button>
+      </div>
+    </div>
+
+    <!-- CSV Import -->
+    <div class="csv-section">
+      <div class="csv-section-title">CSV / Bulk Import</div>
+      <div class="csv-hint">Format: <code>word, language (zh/ja/th/en), meaning, pronunciation</code> — one row per
+        line. This adds to existing words.</div>
+      <textarea id="csv-input" placeholder="猫,zh,cat,māo&#10;猫,ja,cat,neko&#10;แมว,th,cat,maew"></textarea>
+      <div class="csv-actions">
+        <button class="btn primary" onclick="importCSV()">Import CSV Text</button>
+        <label class="csv-file-btn" style="cursor:pointer">
+          📂 Upload .csv File
+          <input type="file" accept=".csv,.txt" style="display:none" onchange="uploadCSV(this)">
+        </label>
+        <button class="btn danger" onclick="clearAllWords()">🗑 Clear All Words</button>
+      </div>
+    </div>
+
+    <!-- Word Table -->
+    <div class="page-header">
+      <div class="page-title">Your Words <span id="tableCount">(0)</span></div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <select id="fontSelect" style="width:auto; padding: 7px 12px; font-size:13px; cursor:pointer;"
+          onchange="changeFontSetting()">
+          <option value="normal">Computer Font</option>
+          <option value="writing">Writing Font</option>
+        </select>
+        <button class="btn" onclick="exportCSV()">📩 Export CSV</button>
+      </div>
+    </div>
+    <div class="word-table-wrap">
+      <table id="wordTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Word</th>
+            <th>Language</th>
+            <th>Meaning</th>
+            <th>Pronunciation</th>
+            <th>Correct</th>
+            <th>Wrong</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="wordTableBody"></tbody>
+      </table>
+      <div class="empty-state" id="emptyState">
+        <div class="icon">📖</div>
+        <p>No words yet. Add your first word above or import a CSV!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ GAME PAGE ═══════════════ -->
+  <div class="page" id="page-game">
+
+    <div id="gameEmpty" class="game-empty">
+      <div class="big">🎮</div>
+      <p>You need at least 3 words to play the matching game.</p>
+      <button class="btn primary" onclick="showPage('words')">Go Add Words →</button>
+    </div>
+
+    <div id="gameMain" style="display:none">
+      <div class="game-layout">
+
+        <div class="game-hud">
+          <div class="hud-card">
+            <div class="hud-label">Streak</div>
+            <div class="hud-val streak" id="streakVal">0</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Score</div>
+            <div class="hud-val score" id="scoreVal">0</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Round</div>
+            <div class="hud-val" id="roundVal">1</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Left</div>
+            <div class="hud-val" id="leftVal">—</div>
+          </div>
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="progress-label">
+            <span id="progressText">Progress</span>
+            <span id="progressPct">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div class="word-display">
+          <div class="lang-label" id="gameLangLabel">Mandarin</div>
+          <div class="main-word" id="gameWord">猫</div>
+          <div class="word-sub" id="gameWordSub">Tap the correct meaning and pronunciation below</div>
+        </div>
+
+        <div class="cards-section">
+          <div class="cards-section-label" id="pronLabel">Pronunciation — pick the correct one</div>
+          <div class="cards-grid" id="pronGrid"></div>
+        </div>
+
+        <div class="cards-section">
+          <div class="cards-section-label" id="meanLabel">Meaning — pick the correct one</div>
+          <div class="cards-grid" id="meanGrid"></div>
+        </div>
+
+        <div class="game-status-bar" id="gameStatus">Choose the correct pronunciation and meaning above.</div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <button class="btn" onclick="initGame()">↺ Restart</button>
+          <button class="btn" onclick="nextWord()" id="nextBtn" style="display:none">Next Word →</button>
+        </div>
+
+      </div>
+
+      <div class="session-complete" id="sessionComplete">
+        <div class="big-num" id="sessionScore">0</div>
+        <h2>Round Complete! 🎉</h2>
+        <p id="sessionMsg">You went through all words in this round.</p>
+        <button class="btn primary" onclick="initGame()">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STATS PAGE ═══════════════ -->
+  <div class="page" id="page-stats">
+    <div class="page-header">
+      <div class="page-title">Performance <span>Stats</span></div>
+      <button class="btn danger" onclick="clearStats()">Reset Stats</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="s-label">Total Words</div>
+        <div class="s-val purple" id="sTotalWords">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Total Correct</div>
+        <div class="s-val green" id="sTotalCorrect">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Total Wrong</div>
+        <div class="s-val red" id="sTotalWrong">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Best Streak</div>
+        <div class="s-val amber" id="sBestStreak">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="s-label">Accuracy</div>
+        <div class="s-val" id="sAccuracy">—</div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <h3>🏆 Most Incorrect Words</h3>
+      <div id="rankingList">
+        <div class="no-data">No data yet. Play the game first!</div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <h3>📈 All Words Performance</h3>
+      <div id="allWordStats">
+        <div class="no-data">No data yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // ── DATA STORE ──────────────────────────────────────────────
+    const STORE_KEY = 'linguamatch_v3';
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return { words: [], bestStreak: 0 };
+        return JSON.parse(raw);
+      } catch (e) { return { words: [], bestStreak: 0 }; }
+    }
+
+    function saveData(data) {
+      localStorage.setItem(STORE_KEY, JSON.stringify(data));
+    }
+
+    let data = loadData();
+
+    function changeFontSetting() {
+      const select = document.getElementById('fontSelect');
+      if (select) {
+        data.fontPref = select.value;
+        saveData(data);
+        applyFontSetting();
+      }
+    }
+
+    function applyFontSetting() {
+      const pref = data.fontPref || 'normal';
+      const select = document.getElementById('fontSelect');
+      if (select) select.value = pref;
+
+      if (pref === 'writing') {
+        document.body.classList.add('writing-font');
+      } else {
+        document.body.classList.remove('writing-font');
+      }
+    }
+
+    applyFontSetting();
+
+    // ── UTILS ─────────────────────────────────────────────────────
+    function genId() { return '_' + Math.random().toString(36).slice(2, 9); }
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function toast(msg, duration = 2200) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), duration);
+    }
+    function pick(arr, n) {
+      return shuffle(arr).slice(0, n);
+    }
+
+    const LANG_NAMES = { zh: 'Mandarin', ja: 'Japanese', th: 'Thai', en: 'English' };
+
+    // ── WORD LIST ─────────────────────────────────────────────────
+    function renderWordTable() {
+      const tbody = document.getElementById('wordTableBody');
+      const empty = document.getElementById('emptyState');
+      const count = document.getElementById('tableCount');
+      const navCount = document.getElementById('wordCount');
+
+      count.textContent = `(${data.words.length})`;
+      navCount.textContent = `${data.words.length} word${data.words.length !== 1 ? 's' : ''}`;
+
+      if (data.words.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        document.querySelector('#wordTable thead').style.display = 'none';
+        return;
+      }
+      empty.style.display = 'none';
+      document.querySelector('#wordTable thead').style.display = '';
+
+      tbody.innerHTML = data.words.map((w, i) => `
+    <tr id="row-${w.id}">
+      <td style="color:var(--text3);font-size:12px">${i + 1}</td>
+      <td class="word-cell" style="font-size:18px;font-weight:600">${esc(w.word)}</td>
+      <td><span class="lang-badge lang-${w.lang}">${LANG_NAMES[w.lang] || w.lang}</span></td>
+      <td>${esc(w.meaning)}</td>
+      <td style="color:var(--text2)">${esc(w.pronun)}</td>
+      <td style="color:var(--green);font-weight:600">${w.correct || 0}</td>
+      <td style="color:var(--red);font-weight:600">${w.wrong || 0}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-icon" onclick="editRow('${w.id}')" title="Edit">✏️</button>
+          <button class="btn-icon del" onclick="deleteWord('${w.id}')" title="Delete">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+    }
+
+    function esc(s = '') { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    function addWord() {
+      const word = document.getElementById('inp-word').value.trim();
+      const lang = document.getElementById('inp-lang').value;
+      const meaning = document.getElementById('inp-meaning').value.trim();
+      const pronun = document.getElementById('inp-pronun').value.trim();
+      if (!word || !meaning) { toast('⚠️ Word and Meaning are required.'); return; }
+      data.words.push({ id: genId(), word, lang, meaning, pronun, correct: 0, wrong: 0 });
+      saveData(data);
+      renderWordTable();
+      document.getElementById('inp-word').value = '';
+      document.getElementById('inp-meaning').value = '';
+      document.getElementById('inp-pronun').value = '';
+      toast('✅ Word added!');
+    }
+
+    function deleteWord(id) {
+      data.words = data.words.filter(w => w.id !== id);
+      saveData(data);
+      renderWordTable();
+    }
+
+    function editRow(id) {
+      const w = data.words.find(x => x.id === id);
+      if (!w) return;
+      const row = document.getElementById('row-' + id);
+      row.innerHTML = `
+    <td style="color:var(--text3);font-size:12px">#</td>
+    <td><input type="text" value="${esc(w.word)}" id="e-word-${id}" style="width:90px"></td>
+    <td>
+      <select id="e-lang-${id}" style="font-size:13px;padding:6px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text)">
+        ${['zh', 'ja', 'th', 'en'].map(l => `<option value="${l}" ${w.lang === l ? 'selected' : ''}>${LANG_NAMES[l]}</option>`).join('')}
+      </select>
+    </td>
+    <td><input type="text" value="${esc(w.meaning)}" id="e-meaning-${id}" style="width:120px"></td>
+    <td><input type="text" value="${esc(w.pronun)}" id="e-pronun-${id}" style="width:100px"></td>
+    <td style="color:var(--green)">${w.correct || 0}</td>
+    <td style="color:var(--red)">${w.wrong || 0}</td>
+    <td>
+      <div class="row-actions">
+        <button class="btn success btn-icon" onclick="saveEdit('${id}')" style="padding:5px 10px;border-radius:6px;font-size:13px;background:var(--green);border:none;color:#0f1f17">Save</button>
+        <button class="btn-icon" onclick="renderWordTable()">✕</button>
+      </div>
+    </td>
+  `;
+    }
+
+    function saveEdit(id) {
+      const w = data.words.find(x => x.id === id);
+      if (!w) return;
+      w.word = document.getElementById(`e-word-${id}`).value.trim() || w.word;
+      w.lang = document.getElementById(`e-lang-${id}`).value;
+      w.meaning = document.getElementById(`e-meaning-${id}`).value.trim();
+      w.pronun = document.getElementById(`e-pronun-${id}`).value.trim();
+      saveData(data);
+      renderWordTable();
+      toast('✅ Saved!');
+    }
+
+    function importCSV() {
+      const raw = document.getElementById('csv-input').value.trim();
+      if (!raw) { toast('⚠️ Paste CSV text first.'); return; }
+      parseAndAddCSV(raw);
+      document.getElementById('csv-input').value = '';
+    }
+
+    function uploadCSV(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => { parseAndAddCSV(e.target.result); input.value = ''; };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    function parseAndAddCSV(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('#'));
+      let added = 0, skipped = 0;
+      for (const line of lines) {
+        const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(p => {
+          let val = p.trim();
+          if (val.startsWith('"') && val.endsWith('"') && val.length >= 2) {
+            val = val.slice(1, -1).replace(/""/g, '"');
+          }
+          return val;
+        });
+
+        if (parts.length > 0 && (parts[0].toLowerCase() === 'word' || parts[0].toLowerCase() === '"word"')) {
+          skipped++;
+          continue;
+        }
+        if (parts.length < 2) { skipped++; continue; }
+
+        const [word, lang, meaning = '', pronun = ''] = parts;
+        const validLang = ['zh', 'ja', 'th', 'en'].includes(lang) ? lang : 'en';
+        if (!word) { skipped++; continue; }
+        data.words.push({ id: genId(), word, lang: validLang, meaning, pronun, correct: 0, wrong: 0 });
+        added++;
+      }
+      saveData(data);
+      renderWordTable();
+      toast(`✅ Imported ${added} words${skipped ? ` (${skipped} skipped)` : ''}.`);
+    }
+
+    function clearAllWords() {
+      if (!confirm('Clear ALL words? This cannot be undone.')) return;
+      data.words = [];
+      saveData(data);
+      renderWordTable();
+      toast('🗑 All words cleared.');
+    }
+
+    function exportCSV() {
+      if (data.words.length === 0) {
+        toast('⚠️ No words to export.');
+        return;
+      }
+      const headers = ['word', 'language', 'meaning', 'pronunciation'];
+      const csvContent = data.words.map(w => {
+        const arr = [w.word || '', w.lang || '', w.meaning || '', w.pronun || ''];
+        return arr.map(f => `"${String(f).replace(/"/g, '""')}"`).join(',');
+      }).join('\n');
+
+      const blob = new Blob(['\ufeff' + headers.join(',') + '\n' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'linguamatch_words.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast('✅ Exported to CSV!');
+    }
+
+    // Allow Enter to add word
+    document.getElementById('inp-pronun').addEventListener('keydown', e => { if (e.key === 'Enter') addWord(); });
+
+    // ── GAME ──────────────────────────────────────────────────────
+    let gameState = {
+      queue: [],
+      current: null,
+      pronSelected: null,
+      meanSelected: null,
+      pronCorrect: false,
+      meanCorrect: false,
+      streak: 0,
+      score: 0,
+      round: 1,
+      total: 0,
+      done: 0,
+      locked: false,
+    };
+
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      document.querySelectorAll('.nav-tab')[['words', 'game', 'stats'].indexOf(name)].classList.add('active');
+      if (name === 'game') setupGame();
+      if (name === 'stats') renderStats();
+    }
+
+    function setupGame() {
+      const valid = data.words.filter(w => w.meaning || w.pronun);
+      if (valid.length < 3) {
+        document.getElementById('gameEmpty').style.display = 'block';
+        document.getElementById('gameMain').style.display = 'none';
+        return;
+      }
+      document.getElementById('gameEmpty').style.display = 'none';
+      document.getElementById('gameMain').style.display = 'block';
+      initGame();
+    }
+
+    function initGame() {
+      document.getElementById('sessionComplete').classList.remove('show');
+      document.getElementById('gameMain').querySelector('.game-layout').style.display = 'flex';
+
+      const valid = data.words.filter(w => w.meaning || w.pronun);
+      gameState.queue = shuffle([...valid]);
+      gameState.streak = 0;
+      gameState.score = 0;
+      gameState.round = 1;
+      gameState.total = valid.length;
+      gameState.done = 0;
+      updateHUD();
+      nextWord();
+    }
+
+    function nextWord() {
+      document.getElementById('nextBtn').style.display = 'none';
+      if (gameState.queue.length === 0) {
+        showSessionComplete();
+        return;
+      }
+      gameState.current = gameState.queue.shift();
+      gameState.pronSelected = null;
+      gameState.meanSelected = null;
+      gameState.pronCorrect = false;
+      gameState.meanCorrect = false;
+      gameState.locked = false;
+
+      const w = gameState.current;
+      const allWords = data.words.filter(x => x.id !== w.id);
+
+      // Display word
+      document.getElementById('gameLangLabel').textContent = LANG_NAMES[w.lang] || w.lang;
+      document.getElementById('gameWord').textContent = w.word;
+      document.getElementById('gameWordSub').textContent = 'Pick the correct meaning and pronunciation below.';
+      document.getElementById('gameStatus').innerHTML = 'Choose the correct <strong>pronunciation</strong> and <strong>meaning</strong> above.';
+      document.getElementById('gameStatus').style.color = '';
+
+      // Build distractors
+      const otherMeanings = shuffle(allWords.map(x => x.meaning).filter(x => x && x !== w.meaning));
+      const otherPronuns = shuffle(allWords.map(x => x.pronun).filter(x => x && x !== w.pronun));
+
+      const meanOptions = shuffle([
+        w.meaning,
+        ...otherMeanings.slice(0, 2)
+      ].filter(Boolean).slice(0, 3));
+
+      const pronOptions = shuffle([
+        w.pronun,
+        ...otherPronuns.slice(0, 2)
+      ].filter(Boolean).slice(0, 3));
+
+      // If not enough options, pad with generic ones
+      while (meanOptions.length < 3) meanOptions.push('—');
+      while (pronOptions.length < 3) pronOptions.push('—');
+
+      renderCardGrid('pronGrid', pronOptions, 'pron', w.pronun);
+      renderCardGrid('meanGrid', meanOptions, 'mean', w.meaning);
+
+      updateProgress();
+    }
+
+    function renderCardGrid(gridId, options, type, correct) {
+      const grid = document.getElementById(gridId);
+      grid.innerHTML = options.map((opt, i) => `
+    <div class="match-card" id="card-${type}-${i}" onclick="selectCard('${type}', ${i}, '${CSS.escape(opt)}', '${CSS.escape(correct)}')">
+      ${esc(opt)}
+    </div>
+  `).join('');
+    }
+
+    function selectCard(type, idx, value, correct) {
+      if (gameState.locked) return;
+
+      // Unescape
+      const val = value.replace(/\\[()[\]{}.,\\^$|?*+]/g, m => m[1]);
+      const cor = correct.replace(/\\[()[\]{}.,\\^$|?*+]/g, m => m[1]);
+
+      // Deselect previously selected in same group
+      const prefix = `card-${type}-`;
+      document.querySelectorAll(`[id^="${prefix}"]`).forEach(c => {
+        if (!c.classList.contains('correct')) {
+          c.classList.remove('selected', 'wrong');
+        }
+      });
+
+      const card = document.getElementById(`card-${type}-${idx}`);
+      const w = gameState.current;
+      const isCorrect = (type === 'pron' ? val === w.pronun : val === w.meaning);
+
+      if (isCorrect) {
+        card.classList.add('correct', 'locked');
+        if (type === 'pron') gameState.pronCorrect = true;
+        else gameState.meanCorrect = true;
+      } else {
+        card.classList.add('wrong');
+        card.classList.add('selected');
+        if (type === 'pron') gameState.pronSelected = idx;
+        else gameState.meanSelected = idx;
+        recordWrong();
+      }
+
+      checkBothSelected(type, isCorrect);
+    }
+
+    function checkBothSelected(justType, justCorrect) {
+      const w = gameState.current;
+      const bothCorrect = gameState.pronCorrect && gameState.meanCorrect;
+
+      if (bothCorrect) {
+        gameState.streak++;
+        gameState.score++;
+        gameState.done++;
+        data.bestStreak = Math.max(data.bestStreak || 0, gameState.streak);
+        // Record correct
+        const word = data.words.find(x => x.id === w.id);
+        if (word) { word.correct = (word.correct || 0) + 1; saveData(data); }
+        document.getElementById('gameStatus').innerHTML = `<span class="status-correct">✅ Correct! Streak: ${gameState.streak} 🔥</span>`;
+        document.getElementById('nextBtn').style.display = 'inline-block';
+        updateHUD();
+        return;
+      }
+
+      if (!justCorrect) {
+        // Wrong selection
+        gameState.streak = 0;
+        updateHUD();
+      }
+
+      // If one is already locked correct and this was the other type wrong:
+      if (!justCorrect) {
+        document.getElementById('gameStatus').innerHTML = `<span class="status-wrong">❌ Wrong! Try again.</span>`;
+      }
+    }
+
+    function recordWrong() {
+      const w = gameState.current;
+      const word = data.words.find(x => x.id === w.id);
+      if (word) { word.wrong = (word.wrong || 0) + 1; saveData(data); }
+    }
+
+    function updateHUD() {
+      document.getElementById('streakVal').textContent = gameState.streak;
+      document.getElementById('scoreVal').textContent = gameState.score;
+      document.getElementById('roundVal').textContent = gameState.round;
+      document.getElementById('leftVal').textContent = gameState.queue.length;
+    }
+
+    function updateProgress() {
+      const total = gameState.total;
+      const done = gameState.done;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressText').textContent = `${done} / ${total} words done`;
+      document.getElementById('progressPct').textContent = pct + '%';
+      document.getElementById('leftVal').textContent = gameState.queue.length;
+    }
+
+    function showSessionComplete() {
+      document.getElementById('gameMain').querySelector('.game-layout').style.display = 'none';
+      const sc = document.getElementById('sessionComplete');
+      sc.classList.add('show');
+      document.getElementById('sessionScore').textContent = gameState.score;
+      document.getElementById('sessionMsg').textContent = `You correctly matched ${gameState.score} out of ${gameState.total} words. Best streak: ${data.bestStreak || 0} 🔥`;
+      saveData(data);
+    }
+
+    // ── STATS ─────────────────────────────────────────────────────
+    function renderStats() {
+      const words = data.words;
+      const totalCorrect = words.reduce((a, w) => a + (w.correct || 0), 0);
+      const totalWrong = words.reduce((a, w) => a + (w.wrong || 0), 0);
+      const total = totalCorrect + totalWrong;
+      const acc = total ? Math.round((totalCorrect / total) * 100) : null;
+
+      document.getElementById('sTotalWords').textContent = words.length;
+      document.getElementById('sTotalCorrect').textContent = totalCorrect;
+      document.getElementById('sTotalWrong').textContent = totalWrong;
+      document.getElementById('sBestStreak').textContent = data.bestStreak || 0;
+      document.getElementById('sAccuracy').textContent = acc !== null ? acc + '%' : '—';
+
+      // Ranking: most wrong
+      const sorted = [...words].filter(w => (w.correct || 0) + (w.wrong || 0) > 0)
+        .sort((a, b) => (b.wrong || 0) - (a.wrong || 0));
+
+      if (sorted.length === 0) {
+        document.getElementById('rankingList').innerHTML = '<div class="no-data">No data yet. Play the game first!</div>';
+        document.getElementById('allWordStats').innerHTML = '<div class="no-data">No data yet.</div>';
+        return;
+      }
+
+      document.getElementById('rankingList').innerHTML = sorted.slice(0, 10).map((w, i) => {
+        const tot = (w.correct || 0) + (w.wrong || 0);
+        const wrongPct = tot ? Math.round((w.wrong || 0) / tot * 100) : 0;
+        const rankCls = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-n';
+        return `
+    <div class="word-stat-row">
+      <div class="rank-badge ${rankCls}">${i + 1}</div>
+      <div class="wsr-word">${esc(w.word)}</div>
+      <div class="wsr-meta">
+        <span class="lang-badge lang-${w.lang}">${LANG_NAMES[w.lang] || w.lang}</span>
+        &nbsp;${esc(w.meaning)}
+      </div>
+      <div class="wsr-bars">
+        <div class="mini-bar-wrap">
+          <div class="mini-bar-label">Wrong ${w.wrong || 0}/${tot} (${wrongPct}%)</div>
+          <div class="mini-bar"><div class="mini-bar-fill r" style="width:${wrongPct}%"></div></div>
+        </div>
+      </div>
+    </div>`;
+      }).join('');
+
+      const allSorted = [...words].sort((a, b) => {
+        const ta = (a.correct || 0) + (a.wrong || 0);
+        const tb = (b.correct || 0) + (b.wrong || 0);
+        return tb - ta;
+      });
+
+      document.getElementById('allWordStats').innerHTML = allSorted.map(w => {
+        const tot = (w.correct || 0) + (w.wrong || 0);
+        const cPct = tot ? Math.round((w.correct || 0) / tot * 100) : 0;
+        const wPct = tot ? Math.round((w.wrong || 0) / tot * 100) : 0;
+        return `
+    <div class="word-stat-row">
+      <div class="wsr-word">${esc(w.word)}</div>
+      <div class="wsr-meta">
+        <span class="lang-badge lang-${w.lang}">${LANG_NAMES[w.lang] || w.lang}</span>
+        &nbsp;${esc(w.meaning)}
+        ${w.pronun ? `&nbsp;·&nbsp;<em style="color:var(--text3)">${esc(w.pronun)}</em>` : ''}
+      </div>
+      <div class="wsr-bars">
+        <div class="mini-bar-wrap">
+          <div class="mini-bar-label">✅ ${w.correct || 0}</div>
+          <div class="mini-bar"><div class="mini-bar-fill g" style="width:${cPct}%"></div></div>
+        </div>
+        <div class="mini-bar-wrap">
+          <div class="mini-bar-label">❌ ${w.wrong || 0}</div>
+          <div class="mini-bar"><div class="mini-bar-fill r" style="width:${wPct}%"></div></div>
+        </div>
+      </div>
+    </div>`;
+      }).join('');
+    }
+
+    function clearStats() {
+      if (!confirm('Reset all game statistics? Words will remain.')) return;
+      data.words.forEach(w => { w.correct = 0; w.wrong = 0; });
+      data.bestStreak = 0;
+      saveData(data);
+      renderStats();
+      toast('Stats reset.');
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────
+    renderWordTable();
+  </script>
+</body>
+
+</html>
